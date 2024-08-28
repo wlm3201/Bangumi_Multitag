@@ -84,8 +84,25 @@ let stmt,
   nsfwtags,
   infotags,
   infokeys,
+  ctypes,
   barTags = [];
+let enums = {
+  fetching: "fetching",
+  start: "start",
+  finish: "finish",
+};
 
+function togglePnl(pnl) {
+  document
+    .querySelectorAll(".floatbox")
+    .forEach(el => (el !== pnl ? el.classList.remove("show") : null));
+  pnl.classList.toggle("show");
+}
+function get(u, p) {
+  let params = new URLSearchParams(p).toString();
+  let url = `${u}?${params}`;
+  return fetch(url);
+}
 function initBox() {
   bgmbox.addEventListener("click", e => {
     let t = e.target;
@@ -224,9 +241,17 @@ function loadNext() {
 }
 async function loadbgms() {
   let tpl = gel("bgms").content;
+  let currctype = [...gel("ctype").selectedOptions].map(el => Number(el.value));
   for (let _ of Array(25)) {
-    if (!stmt.step()) return;
+    if (stmt.finalized || !stmt.step())
+      return (stmt.finalized = !stmt.finalize());
     let sbj = stmt.get({});
+    if (
+      ctypes &&
+      currctype.length !== 6 &&
+      !currctype.includes(+ctypes.get(sbj.id))
+    )
+      continue;
     let bgm = tpl.cloneNode(true).children[0];
     bgm.sbj = sbj;
     let $ = bgm.querySelector.bind(bgm);
@@ -345,18 +370,11 @@ async function initTags() {
   infokeys = infotags.map(([key, count]) => key);
   nsfwtags = await (await fetch("nsfwtags.json")).json();
   let tagpanel = gel("tagpanel");
-  let first = 1;
-  gel("showtags").onclick = () => {
-    first ? gel("showall").click() : (first = 1);
-    tagpanel.classList.toggle("show");
-  };
+  gel("showtags").onclick = () => togglePnl(tagpanel);
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") tagpanel.classList.remove("show");
-    if (e.key === "q" && e.ctrlKey) tagpanel.classList.toggle("show");
+    if (e.key === "q" && e.ctrlKey) togglePnl(tagpanel);
   });
-  let obj = {
-    get tags() {},
-  };
   function initbox(btn, box, tags, curr) {
     tags = [...tags];
     let per = 200;
@@ -644,6 +662,38 @@ async function initCover() {
     if (e.target === cover) coverwrap.classList.add("hide");
   };
 }
+async function initSetting() {
+  gel("showsetting").onclick = () => togglePnl(gel("settings"));
+  gel("username").value = localStorage.getItem("username");
+  gel("token").value = localStorage.getItem("token");
+  gel("saveun").onclick = () =>
+    localStorage.setItem("username", gel("username").value);
+  gel("savetoken").onclick = () =>
+    localStorage.setItem("token", gel("token").value);
+  let status;
+  ctypes = (await idb.getItem("types")) || new Map();
+  gel("fetchtype").onclick = async () => {
+    if (gel("username").value === "" || status === enums.fetching) return;
+    status = enums.fetching;
+    while (1) {
+      let offset = ctypes.size;
+      let r = await get("https://api.bgm.tv/v0/users/wlm3201/collections", {
+        subject_type: 2,
+        limit: 100,
+        offset,
+      });
+      let j = await r.json();
+      gel("typepgs").max = j.total;
+      gel("typepgs").value = j.data.length + offset;
+      gel("typetext").innerText = `${j.data.length + offset}/${j.total}`;
+      j.data.forEach(sbj => ctypes.set(sbj.subject_id, sbj.type));
+      idb.setItem("types", ctypes);
+      if (j.data.length < 100) return (status = enums.finish);
+      offset += 100;
+    }
+  };
+}
+
 async function inits() {
   initBox();
   await initBar();
@@ -651,6 +701,7 @@ async function inits() {
   await initTags();
   await initPrompt();
   await initCover();
+  await initSetting();
   search();
 }
 inits();

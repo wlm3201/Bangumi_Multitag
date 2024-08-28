@@ -7,6 +7,7 @@
 * {
   box-sizing: border-box;
   border-radius: 5px;
+  gap: 5px;
 }
 body {
   margin: 0;
@@ -20,17 +21,20 @@ body {
   background: black;
   border-bottom: var(--thin);
   display: flex;
-  gap: 5px;
   align-items: center;
   white-space: nowrap;
-  .tip {
-    background: var(--transblack);
-    position: absolute;
-    top: 100%;
-    display: none;
-  }
-  #showtags:hover + .tip {
-    display: unset;
+  .btnctn {
+    position: relative;
+    .tip {
+      background: var(--transblack);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      display: none;
+    }
+    #showtags:hover + .tip {
+      display: unset;
+    }
   }
   #tooltiptip {
     border: var(--thin);
@@ -101,6 +105,9 @@ body {
       & option {
         border-radius: 0;
         border-bottom: var(--thin);
+        height: 1.4em;
+        display: flex;
+        place-content: center;
       }
     }
     &:hover select {
@@ -117,7 +124,6 @@ body {
   gap: 10px;
   .bgm {
     display: flex;
-    gap: 5px;
     border: var(--medium);
     height: 270px;
     .thumb {
@@ -215,7 +221,6 @@ body {
       .tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
         overflow: hidden;
         & span {
           border: var(--thin);
@@ -272,7 +277,7 @@ body {
     max-height: 100%;
   }
 }
-#tagpanel {
+.floatbox {
   position: fixed;
   top: 10vh;
   left: 10vw;
@@ -288,9 +293,10 @@ body {
   &.show {
     display: flex;
   }
+}
+#tagpanel {
   & .buttons {
     display: flex;
-    gap: 5px;
     .chosed {
       background: var(--transwhite);
     }
@@ -300,7 +306,6 @@ body {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 5px;
     overflow-y: auto;
     &.show {
       display: flex;
@@ -319,7 +324,11 @@ body {
     }
   }
 }
-
+#settings {
+  & > div {
+    display: flex;
+  }
+}
 ::selection {
   color: black;
   background: white;
@@ -423,5 +432,18 @@ button {
   }
   &::-webkit-calendar-picker-indicator {
     cursor: pointer;
+  }
+}
+progress {
+  appearance: none;
+  width: 100px;
+  &::-webkit-progress-bar {
+    background: transparent;
+    border-radius: 15px;
+    border: white medium solid;
+  }
+  &::-webkit-progress-value {
+    background: white;
+    border-radius: 15px;
   }
 }

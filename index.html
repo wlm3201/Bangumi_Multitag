@@ -9,8 +9,11 @@
   </head>
   <body>
     <div id="topbar">
-      <button id="showtags">标签</button>
-      <div class="tip">Ctrl+q</div>
+      <button id="showsetting">设置</button>
+      <div class="btnctn">
+        <button id="showtags">标签</button>
+        <div class="tip">Ctrl+q</div>
+      </div>
       <div id="tooltipbox">
         <div id="tooltiptip">提示</div>
         <div id="tooltip">
@@ -51,6 +54,17 @@
           <option value="OVA" selected>OVA</option>
           <option value="WEB" selected>WEB</option>
           <option value="其他" selected>其他</option>
+        </select>
+      </div>
+      <div class="multiselect">
+        <span>状态</span>
+        <select id="ctype" multiple size="6">
+          <option value="NaN" selected>未收藏</option>
+          <option value="1" selected>想看</option>
+          <option value="2" selected>看过</option>
+          <option value="3" selected>在看</option>
+          <option value="4" selected>搁置</option>
+          <option value="5" selected>抛弃</option>
         </select>
       </div>
       <input type="date" id="startdate" />
@@ -108,7 +122,7 @@
       <div id="summary"></div>
       <div id="infobox"></div>
     </div>
-    <div id="tagpanel">
+    <div id="tagpanel" class="floatbox">
       <div class="buttons">
         <button id="showall" class="radio">全部</button>
         <button id="shownsfw" class="radio">NSFW</button>
@@ -117,6 +131,32 @@
       <div id="alltagbox" class="tagbox"></div>
       <div id="nsfwtagbox" class="tagbox"></div>
       <div id="currtagbox" class="tagbox"></div>
+    </div>
+    <div id="settings" class="floatbox">
+      <div>
+        <span>用户名：</span><input id="username" type="text" /><button
+          id="saveun">
+          保存
+        </button>
+        <small>用于观看状态筛选</small>
+      </div>
+      <div>
+        <span>Access Token：</span><input id="token" type="text" />
+        <button id="savetoken">保存</button>
+        <small>
+          从
+          <a href="https://next.bgm.tv/demo/access-token" target="_blank">
+            这里
+          </a>
+          获取，暂无用
+        </small>
+      </div>
+      <div>
+        <span>抓取观看信息：</span>
+        <button id="fetchtype">开始</button>
+        <progress id="typepgs">0/0</progress>
+        <span id="typetext"></span>
+      </div>
     </div>
     <script src="libarchive.js"></script>
     <script src="sqlite3.js"></script>
