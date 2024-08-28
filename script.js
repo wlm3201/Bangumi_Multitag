@@ -677,7 +677,7 @@ async function initSetting() {
     status = enums.fetching;
     while (1) {
       let offset = ctypes.size;
-      let r = await get("https://api.bgm.tv/v0/users/wlm3201/collections", {
+      let r = await get(`https://api.bgm.tv/v0/users/${gel("username").value}/collections`, {
         subject_type: 2,
         limit: 100,
         offset,
