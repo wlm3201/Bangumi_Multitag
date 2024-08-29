@@ -615,7 +615,7 @@ async function initCover() {
     if (t.matches(".thumb")) {
       let sbj = t.closest(".bgm").sbj;
       let coversrc = t.src.replace("r/200/", "");
-      if (!timer || cover.src != coversrc) {
+      if (!timer && cover.src != coversrc) {
         timer = setTimeout(() => {
           clearTimeout(timer);
           cover.src = coversrc;
