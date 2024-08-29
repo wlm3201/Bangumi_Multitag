@@ -615,7 +615,7 @@ async function initCover() {
     if (t.matches(".thumb")) {
       let sbj = t.closest(".bgm").sbj;
       let coversrc = t.src.replace("r/200/", "");
-      if (!timer && cover.src != coversrc) {
+      if (!(e.relatedTarget === cover && cover.src === coversrc)) {
         timer = setTimeout(() => {
           clearTimeout(timer);
           cover.src = coversrc;
@@ -651,7 +651,6 @@ async function initCover() {
   });
   document.addEventListener("mouseout", e => {
     clearTimeout(timer);
-    timer = null;
     if (
       e.relatedTarget &&
       !e.relatedTarget?.closest("#cover,.thumb,#summary,#infobox")
@@ -677,11 +676,14 @@ async function initSetting() {
     status = enums.fetching;
     while (1) {
       let offset = ctypes.size;
-      let r = await get(`https://api.bgm.tv/v0/users/${gel("username").value}/collections`, {
-        subject_type: 2,
-        limit: 100,
-        offset,
-      });
+      let r = await get(
+        `https://api.bgm.tv/v0/users/${gel("username").value}/collections`,
+        {
+          subject_type: 2,
+          limit: 100,
+          offset,
+        }
+      );
       let j = await r.json();
       gel("typepgs").max = j.total;
       gel("typepgs").value = j.data.length + offset;
