@@ -79,12 +79,15 @@ let searchbar = gel("searchbar");
 let nsfw = gel("nsfw");
 let tagnum = gel("tagnum");
 let bgmbox = gel("bgmbox");
-let stmt,
+let db,
+  idb,
   tags,
   nsfwtags,
   infotags,
   infokeys,
+  stmt,
   ctypes,
+  stype = "2",
   barTags = [];
 let enums = {
   fetching: "fetching",
@@ -262,12 +265,14 @@ async function loadbgms() {
     $(".solid").style.width = sbj.score * 10 + "%";
     $(".base").replaceChildren(
       ...[
-        sbj.platform,
-        sbj.eps +
-          (sbj.total_episodes - sbj.eps
-            ? "+" + (sbj.total_episodes - sbj.eps)
-            : "") +
-          "话",
+        sbj.platform || "",
+        sbj.eps
+          ? sbj.eps +
+            (sbj.total_episodes - sbj.eps
+              ? "+" + (sbj.total_episodes - sbj.eps)
+              : "") +
+            "话"
+          : "",
         new Date(sbj.date).toLocaleDateString().slice(2),
         "排" + sbj.rank,
         nel("br"),
@@ -315,35 +320,36 @@ async function initBar() {
   gel("searchbtn").onclick = search;
 }
 async function initDB() {
-  let sqlite3 = await sqlite3InitModule();
-  window.sqlite3 = sqlite3;
-  let idb = new IDB();
-  window.idb = await idb.init();
+  if (!window.sqlite3) window.sqlite3 = await sqlite3InitModule();
+  idb = new IDB();
+  idb = await idb.init();
   let root = await navigator.storage.getDirectory();
   let ab;
   async function getdb() {
-    let blob = await (await fetch("bgm_7z")).blob();
+    let blob = await (await fetch(`${stype}/bgm_7z`)).blob();
     localStorage.setItem("7zsize", blob.size);
     let archive = await Archive.open(blob);
     let files = await archive.extractFiles();
     let file = files["bgm.db"];
     ab = await file.arrayBuffer();
-    idb.setItem("bgm.db", ab);
+    idb.setItem(`${stype}_bgm.db`, ab);
     try {
-      let dbfile = await root.getFileHandle("bgm.db", { create: true });
+      let dbfile = await root.getFileHandle(`${stype}_bgm.db`, {
+        create: true,
+      });
       let writable = await dbfile.createWritable();
       writable.write(ab).then(() => writable.close());
     } catch {}
   }
   try {
-    ab = await idb.getItem("bgm.db");
+    ab = await idb.getItem(`${stype}_bgm.db`);
     if (!ab) {
       ab = await (
-        await (await root.getFileHandle("bgm.db")).getFile()
+        await (await root.getFileHandle(`${stype}_bgm.db`)).getFile()
       ).arrayBuffer();
       if (!ab.byteLength) throw new Error();
     }
-    fetch("bgm_7z", { method: "HEAD" }).then(r => {
+    fetch(`${stype}/bgm_7z`, { method: "HEAD" }).then(r => {
       if (r.headers.get("content-length") !== localStorage.getItem("7zsize"))
         getdb();
     });
@@ -352,7 +358,7 @@ async function initDB() {
   }
 
   let p = sqlite3.wasm.allocFromTypedArray(ab);
-  let db = new sqlite3.oo1.DB("bgm.db");
+  db = new sqlite3.oo1.DB(`${stype}_bgm.db`);
   let rc = sqlite3.capi.sqlite3_deserialize(
     db.pointer,
     "main",
@@ -362,19 +368,19 @@ async function initDB() {
     sqlite3.capi.SQLITE_DESERIALIZE_RESIZEABLE
   );
   db.checkRc(rc);
-  window.db = db;
 }
-async function initTags() {
-  tags = await (await fetch("tags.json")).json();
-  infotags = await (await fetch("infotags.json")).json();
+async function initTags(first) {
+  tags = await (await fetch(`${stype}/tags.json`)).json();
+  infotags = await (await fetch(`${stype}/infotags.json`)).json();
   infokeys = infotags.map(([key, count]) => key);
-  nsfwtags = await (await fetch("nsfwtags.json")).json();
+  nsfwtags = await (await fetch(`${stype}/nsfwtags.json`)).json();
   let tagpanel = gel("tagpanel");
   gel("showtags").onclick = () => togglePnl(tagpanel);
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") tagpanel.classList.remove("show");
-    if (e.key === "q" && e.ctrlKey) togglePnl(tagpanel);
-  });
+  if (first)
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") tagpanel.classList.remove("show");
+      if (e.key === "q" && e.ctrlKey) togglePnl(tagpanel);
+    });
   function initbox(btn, box, tags, curr) {
     tags = [...tags];
     let per = 200;
@@ -425,6 +431,7 @@ async function initTags() {
       )
         loadtags();
     };
+    box.replaceChildren();
     loadtags();
   }
   initbox(gel("showall"), gel("alltagbox"), tags);
@@ -455,10 +462,15 @@ async function initPrompt() {
     .fill()
     .map((_, i) => nel("li"));
   ul.replaceChildren(...lis);
+  let not;
   function autocomplete() {
     let text = searchbar.value;
     let lastSpace = text.lastIndexOf(" ");
     let lastWord = text.slice(lastSpace + 1).toLowerCase();
+    if (lastWord.startsWith("!")) {
+      not = "!";
+      lastWord = lastWord.slice(1);
+    } else not = "";
     prev = text.slice(0, lastSpace + 1);
     let prevTags = prev.split(" ");
     if (!lastWord) return ul.classList.remove("show");
@@ -535,7 +547,10 @@ async function initPrompt() {
   function select() {
     if (focusLi.matches(".hide")) return;
     searchbar.value =
-      prev + focusLi.tag + (focusLi.classList.contains("gray") ? ":" : " ");
+      prev +
+      not +
+      focusLi.tag +
+      (focusLi.classList.contains("gray") ? ":" : " ");
     oninput();
   }
   let throttled = throttle(autocomplete, 250);
@@ -695,15 +710,20 @@ async function initSetting() {
     }
   };
 }
-
 async function inits() {
   initBox();
   await initBar();
   await initDB();
-  await initTags();
+  await initTags(1);
   await initPrompt();
   await initCover();
   await initSetting();
   search();
 }
+gel("stype").onchange = async e => {
+  stype = e.target.value;
+  await initDB();
+  await initTags();
+  search();
+};
 inits();

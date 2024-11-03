@@ -5,9 +5,6 @@ let resorces = [
   "libarchive.js",
   "worker-bundle.js",
   "libarchive.wasm",
-  "tags.json",
-  "nsfwtags.json",
-  "infotags.json",
 ];
 let pathname = new URL(self.registration.scope).pathname;
 resorces = resorces.map(s => pathname + s);
