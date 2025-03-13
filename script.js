@@ -169,7 +169,7 @@ function search() {
     y: "CAST(strftime('%m', date) AS INT)",
   };
   let text = searchbar.value.trim();
-  let terms = text.split(" ");
+  let terms = text.match(/[^\s"]+|"[^"]*"/g) || [];
   if (!terms) terms = [];
   let ands = [];
   barTags = [];
@@ -197,15 +197,17 @@ function search() {
           ""
         )}%'`;
       if (not === "") barTags.push(k);
-      if (v)
-        return `${not}EXISTS (SELECT 1 FROM json_each(tags) WHERE value = '${k}' AND key < ${v})`;
+      if (v) {
+        if (["=", ">", "<"].every(c => !v.startsWith(c))) v = "<" + v;
+        return `${not}EXISTS (SELECT 1 FROM json_each(tags) WHERE value = '${k}' AND key ${v})`;
+      }
       return `${not}tags like '%${k}%'`;
     }
     if (["=", ">", "<"].every(c => !v.startsWith(c))) v = "=" + v;
     return `${not}${col}${v}`;
   }
   for (let term of terms) {
-    let subterms = term.match(/[^\s"]+|"[^"]*"/g) || [];
+    let subterms = term.split("|");
     let ors = [];
     for (let subterm of subterms) {
       if (subterm === "") continue;
