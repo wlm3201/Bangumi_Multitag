@@ -283,11 +283,6 @@ async function loadbgms() {
     let tagWrap = $(".tags");
     sbj.tags = JSON.parse(sbj.tags);
     sbj.tags.forEach(tag => {
-      if (
-        tag.match(/(?<!\d)(19\d\d|20[012]\d)(?!\d)/) ||
-        ["OVA", "WEB", "TV", "剧场版"].includes(tag)
-      )
-        return;
       let tagEl = nel("span");
       tagEl.innerText = tag;
       if (barTags.includes(tag)) tagEl.classList.add("match");
