@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <title>Bangumi多标签</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <meta charset="UTF-8" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="topbar">
+      <button id="showsetting">设置</button>
+      <div class="btnctn">
+        <button id="showtags">标签</button>
+        <div class="tip">Ctrl+q</div>
+      </div>
+      <div id="tooltipbox">
+        <div id="tooltiptip">提示</div>
+        <div id="tooltip">
+          !：非<br />
+          |：或<br />
+          空格：与<br />
+          &lt;：小于<br />
+          &gt;：大于<br />
+          =：等于<br />
+          <hr />
+          标签<br />
+          标签：排名<br />
+          信息：内容<br />
+          <hr />
+          n：名称<br />
+          r：排名<br />
+          s：评分<br />
+          t：评分数<br />
+          e：集数<br />
+          te：总集数<br />
+          w：想看<br />
+          o：搁置<br />
+          d：在看<br />
+          c：看过<br />
+          dr：抛弃<br />
+          y：月份<br />
+        </div>
+      </div>
+      <select id="stype">
+        <option value="2">动画</option>
+        <option value="4">游戏</option>
+      </select>
+      <div id="searchbox">
+        <input id="searchbar" type="text" />
+        <ul id="prompts"></ul>
+      </div>
+      <div class="multiselect">
+        <span>平台</span>
+        <select id="platform" multiple size="5">
+          <option value="TV" selected>TV</option>
+          <option value="剧场版" selected>剧场版</option>
+          <option value="OVA" selected>OVA</option>
+          <option value="WEB" selected>WEB</option>
+          <option value="其他" selected>其他</option>
+        </select>
+      </div>
+      <div class="multiselect">
+        <span>状态</span>
+        <select id="ctype" multiple size="6">
+          <option value="NaN" selected>未收藏</option>
+          <option value="1" selected>想看</option>
+          <option value="2" selected>看过</option>
+          <option value="3" selected>在看</option>
+          <option value="4" selected>搁置</option>
+          <option value="5" selected>抛弃</option>
+        </select>
+      </div>
+      <input type="date" id="startdate" />
+      <input type="date" id="enddate" />
+      <select id="sortby">
+        <option value="rank">排名</option>
+        <option value="date">日期</option>
+        <!-- <option value="collection">收藏数</option> -->
+        <option value="total">评分数</option>
+      </select>
+      <select id="scending">
+        <option value="asc">正序</option>
+        <option value="desc">倒序</option>
+      </select>
+      <div>NSFW</div>
+      <input type="checkbox" id="nsfw" />
+      <button id="searchbtn">搜索</button>
+    </div>
+    <div id="bgmbox"></div>
+    <template id="bgms">
+      <div class="bgm">
+        <img class="thumb" loading="lazy" />
+        <div class="infos">
+          <div class="names">
+            <div class="name_cn"></div>
+            <div class="name"></div>
+          </div>
+          <div class="info">
+            <div class="base">
+              <div class="score">
+                <div class="solid">★★★★★</div>
+                <div class="hollow">☆☆☆☆☆</div>
+              </div>
+            </div>
+            <div class="detail">
+              <div class="chart">
+                <div class="bar">
+                  <div class="val"></div>
+                  <div class="col"></div>
+                  <div class="idx"></div>
+                </div>
+              </div>
+              <div class="other"></div>
+            </div>
+          </div>
+          <div class="tags"></div>
+        </div>
+      </div>
+    </template>
+    <div id="coverwrap">
+      <img id="cover" loading="lazy" />
+      <div id="summary"></div>
+      <div id="infobox"></div>
+    </div>
+    <div id="tagpanel" class="floatbox">
+      <div class="buttons">
+        <button id="showall" class="radio">全部</button>
+        <button id="shownsfw" class="radio">NSFW</button>
+        <button id="showcurr" class="radio">当前</button>
+      </div>
+      <div id="alltagbox" class="tagbox"></div>
+      <div id="nsfwtagbox" class="tagbox"></div>
+      <div id="currtagbox" class="tagbox"></div>
+    </div>
+    <div id="settings" class="floatbox">
+      <div>
+        <span>用户名：</span><input id="username" type="text" /><button
+          id="saveun">
+          保存
+        </button>
+        <small>用于观看状态筛选</small>
+      </div>
+      <div>
+        <span>Access Token：</span><input id="token" type="text" />
+        <button id="savetoken">保存</button>
+        <small>
+          从
+          <a href="https://next.bgm.tv/demo/access-token" target="_blank">
+            这里
+          </a>
+          获取，暂无用
+        </small>
+      </div>
+      <div>
+        <span>抓取观看信息：</span>
+        <button id="fetchtype">开始</button>
+        <progress id="typepgs">0/0</progress>
+        <span id="typetext"></span>
+      </div>
+    </div>
+    <script src="libarchive.js"></script>
+    <script src="sqlite3.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,450 @@
+:root {
+  --thin: white solid thin;
+  --medium: white solid medium;
+  --transblack: rgba(0, 0, 0, 0.5);
+  --transwhite: rgba(255, 255, 255, 0.5);
+}
+* {
+  box-sizing: border-box;
+  border-radius: 5px;
+  gap: 5px;
+}
+body {
+  margin: 0;
+  color: white;
+  background: black;
+}
+#topbar {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  background: black;
+  border-bottom: var(--thin);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  .btnctn {
+    position: relative;
+    .tip {
+      background: var(--transblack);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      display: none;
+    }
+    #showtags:hover + .tip {
+      display: unset;
+    }
+  }
+  #tooltiptip {
+    border: var(--thin);
+    cursor: help;
+  }
+  #tooltip {
+    position: absolute;
+    top: 100%;
+    display: none;
+    background: var(--transblack);
+    backdrop-filter: blur(5px);
+    padding: 10px;
+    border: var(--medium);
+  }
+  #tooltipbox {
+    position: relative;
+    &:hover #tooltip {
+      display: block;
+    }
+  }
+  #searchbar {
+    max-width: 50vw;
+    outline: none;
+  }
+  #prompts {
+    border: var(--medium);
+    position: absolute;
+    backdrop-filter: blur(5px);
+    background: var(--transblack);
+    padding: 10px;
+    margin: 0;
+    list-style: none;
+    display: none;
+    &.show {
+      display: inherit;
+    }
+    & li {
+      cursor: pointer;
+      border: var(--medium);
+      border-color: transparent;
+      display: flex;
+      justify-content: space-between;
+      &.gray {
+        opacity: 0.5;
+      }
+      &.hide {
+        display: none;
+      }
+      &:hover {
+        border-color: white;
+      }
+      &.focus {
+        border-color: white;
+      }
+    }
+  }
+  .multiselect {
+    cursor: default;
+    border: var(--medium);
+    padding: 0 5px;
+    position: relative;
+    & select {
+      display: none;
+      width: 100%;
+      position: absolute;
+      left: 0;
+      top: 100%;
+      & option {
+        border-radius: 0;
+        border-bottom: var(--thin);
+        height: 1.4em;
+        display: flex;
+        place-content: center;
+      }
+    }
+    &:hover select {
+      display: unset;
+    }
+    &::after {
+      content: "▽";
+    }
+  }
+}
+#bgmbox {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 10px;
+  .bgm {
+    display: flex;
+    border: var(--medium);
+    height: 270px;
+    .thumb {
+      min-width: 180px;
+      max-width: 50%;
+      cursor: pointer;
+      object-fit: contain;
+      object-position: left;
+      &.nsfw {
+        border: var(--medium);
+        border-color: orange;
+      }
+    }
+    .infos {
+      flex-shrink: 114514;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-width: 0;
+      .names {
+        position: relative;
+        background: black;
+        .name_cn {
+          font-weight: bold;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .name {
+          padding: 5px;
+          position: absolute;
+          display: none;
+          background: black;
+          border: var(--thin);
+          z-index: 1;
+        }
+        &:hover {
+          min-width: fit-content;
+          .name {
+            display: unset;
+          }
+        }
+      }
+      .info {
+        width: fit-content;
+        .score {
+          position: relative;
+          font-family: monospace;
+          display: inline-flex;
+          .solid {
+            color: gold;
+            overflow: hidden;
+            position: absolute;
+          }
+        }
+        &:hover .detail {
+          display: unset;
+        }
+        .detail {
+          position: absolute;
+          width: 100%;
+          background: var(--transblack);
+          backdrop-filter: blur(5px);
+          z-index: 1;
+          border: var(--medium);
+          padding: 5px;
+          display: none;
+          .chart {
+            display: grid;
+            grid: auto 1fr auto / auto-flow minmax(0, 1fr);
+            aspect-ratio: 1;
+            .bar {
+              display: grid;
+              grid-area: span 3;
+              grid: subgrid / subgrid;
+              justify-items: center;
+              .val {
+                visibility: hidden;
+              }
+              .col {
+                width: calc(100% - 5px);
+                align-self: end;
+                border: var(--thin);
+              }
+              &:hover .val {
+                visibility: visible;
+              }
+              &:hover .col {
+                background: var(--transwhite);
+              }
+            }
+          }
+        }
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        overflow: hidden;
+        & span {
+          border: var(--thin);
+          padding: 0 2px;
+          cursor: pointer;
+          &.match {
+            color: yellow;
+            border-color: yellow;
+          }
+        }
+      }
+    }
+  }
+}
+#coverwrap {
+  line-height: 0;
+  position: fixed;
+  z-index: 2;
+  top: 0;
+  height: 100vh;
+  /* 字体变糊 */
+  /* top: 50%; */
+  /* translate: 0 -50% 0; */
+  &.hide {
+    display: none;
+  }
+  #cover {
+    height: 100%;
+  }
+  & div {
+    line-height: normal;
+    position: absolute;
+    width: 100%;
+    background: var(--transblack);
+    border: var(--medium);
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    opacity: 0;
+    overflow-y: auto;
+    min-height: 25%;
+    &:hover {
+      opacity: 1;
+    }
+  }
+  #summary {
+    bottom: 0;
+    max-height: 50%;
+    &:hover + #infobox {
+      opacity: 1;
+    }
+  }
+  #infobox {
+    bottom: 0;
+    max-height: 100%;
+  }
+}
+.floatbox {
+  position: fixed;
+  top: 10vh;
+  left: 10vw;
+  height: 80vh;
+  width: 80vw;
+  border: var(--medium);
+  background: var(--transblack);
+  backdrop-filter: blur(100px);
+  padding: 20px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2;
+  &.show {
+    display: flex;
+  }
+}
+#tagpanel {
+  & .buttons {
+    display: flex;
+    .chosed {
+      background: var(--transwhite);
+    }
+  }
+  .tagbox {
+    display: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-y: auto;
+    &.show {
+      display: flex;
+    }
+    & > span {
+      padding: 2px 5px;
+      border: var(--thin);
+      border-color: var(--transwhite);
+      cursor: pointer;
+      & small {
+        opacity: 0.5;
+      }
+      &:hover {
+        border-color: white;
+      }
+    }
+  }
+}
+#settings {
+  & > div {
+    display: flex;
+  }
+}
+::selection {
+  color: black;
+  background: white;
+}
+[type="text"] {
+  appearance: none;
+  color: white;
+  background: black;
+  border: var(--medium);
+}
+select {
+  color: white;
+  background: black;
+  border: var(--medium);
+  cursor: pointer;
+  outline: none;
+}
+[type="range"] {
+  appearance: none;
+  width: 100px;
+  height: min-content;
+  border-radius: 15px;
+  border: var(--medium);
+  background: black;
+  &::-webkit-slider-thumb {
+    appearance: none;
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: white;
+  }
+}
+button {
+  color: white;
+  outline: none;
+  user-select: none;
+  background: transparent;
+  border: var(--medium);
+  &:hover {
+    cursor: pointer;
+    background: var(--transwhite);
+  }
+  &:active {
+    opacity: 0.5;
+  }
+}
+[type="checkbox"] {
+  cursor: pointer;
+  appearance: none;
+  width: 1.5em;
+  height: 1.5em;
+  background: white;
+  position: relative;
+  &::after {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    content: "";
+    font-weight: bold;
+    display: grid;
+    place-content: center;
+  }
+  &:checked {
+    background: #99c8ff;
+    &::after {
+      content: "✔";
+      color: black;
+    }
+  }
+  &:indeterminate {
+    background: gray;
+    &::after {
+      content: "—";
+    }
+  }
+}
+[type="date"] {
+  width: 110px;
+  background: black;
+  color: white;
+  border: var(--medium);
+  outline: none;
+  &::-webkit-datetime-edit-fields-wrapper {
+    cursor: text;
+  }
+  &::-webkit-datetime-edit-text {
+    cursor: initial;
+  }
+  &::-webkit-datetime-edit-month-field:focus {
+    background: white;
+    color: black;
+  }
+  &::-webkit-datetime-edit-day-field:focus {
+    background: white;
+    color: black;
+  }
+  &::-webkit-datetime-edit-year-field:focus {
+    background: white;
+    color: black;
+  }
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+}
+progress {
+  appearance: none;
+  width: 100px;
+  &::-webkit-progress-bar {
+    background: transparent;
+    border-radius: 15px;
+    border: white medium solid;
+  }
+  &::-webkit-progress-value {
+    background: white;
+    border-radius: 15px;
+  }
+}
