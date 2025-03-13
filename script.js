@@ -266,7 +266,7 @@ async function loadbgms() {
         sbj.platform || "",
         sbj.eps
           ? sbj.eps +
-            (sbj.total_episodes - sbj.eps
+            (sbj.total_episodes - sbj.eps > 0
               ? "+" + (sbj.total_episodes - sbj.eps)
               : "") +
             "话"
