@@ -1,8 +1,8 @@
 # bgm.tv 多标签搜索
 
-![展示1](demo1.png)
+![展示1](demo1.webp)
 
-![展示2](demo2.png)
+![展示2](demo2.webp)
 
 ## 下一步
 
