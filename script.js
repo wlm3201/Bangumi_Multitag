@@ -395,8 +395,8 @@ async function initTags(first) {
         bgmbox
           .querySelectorAll(".bgm")
           .forEach(el =>
-            el.sbj.tags.forEach(([tag, count]) =>
-              counter.set(tag, (counter.get(tag) || count) + 1)
+            el.sbj.tags.forEach(tag =>
+              counter.set(tag, (counter.get(tag) || 0) + 1)
             )
           );
         tags = Array.from(counter).sort((a, b) => b[1] - a[1]);
