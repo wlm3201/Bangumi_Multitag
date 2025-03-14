@@ -1,10 +1,22 @@
-let gel = document.getElementById;
-gel = gel.bind(document);
+let $ = document.querySelector;
+$ = $.bind(document);
 let nel = document.createElement;
 nel = nel.bind(document);
 let del = document.documentElement;
 let log = console.log;
 let div = nel("div");
+HTMLElement.prototype.hide = function () {
+  this.classList.add("hide");
+};
+HTMLElement.prototype.show = function () {
+  this.classList.remove("hide");
+};
+HTMLElement.prototype.toggle = function () {
+  this.classList.toggle("hide");
+};
+HTMLElement.prototype.hided = function () {
+  return this.matches(".hide");
+};
 function throttle(func, ms = 1000) {
   let timeout, again, thisArg, argArray;
   function throttled() {
@@ -78,9 +90,9 @@ class IDB {
 }
 navigator.serviceWorker.register("sw.js");
 
-let searchbar = gel("searchbar");
-let nsfw = gel("nsfw");
-let bgmbox = gel("bgmbox");
+let searchbar = $("#searchbar");
+let nsfw = $("#nsfw");
+let bgmbox = $("#bgmbox");
 let db,
   idb,
   tags,
@@ -100,8 +112,8 @@ let enums = {
 function togglePnl(pnl) {
   document
     .querySelectorAll(".floatbox")
-    .forEach(el => (el !== pnl ? el.classList.remove("show") : null));
-  pnl.classList.toggle("show");
+    .forEach(el => (el !== pnl ? el.hide() : null));
+  pnl.toggle();
 }
 function get(u, p) {
   let params = new URLSearchParams(p).toString();
@@ -217,19 +229,19 @@ function search() {
     if (ors.length) ands.push(`(${ors.join(" or ")})`);
   }
   if (!nsfw.indeterminate) ands.push("nsfw=" + +nsfw.checked);
-  let platform = gel("platform");
+  let platform = $("#platform");
   if (platform.options.length !== platform.selectedOptions.length)
     ands.push(
       `platform in (${[...platform.selectedOptions]
         .map(o => `'${o.value}'`)
         .join(",")})`
     );
-  if (gel("startdate").value !== "")
-    ands.push(`date>'${gel("startdate").value}'`);
-  if (gel("enddate").value !== "") ands.push(`date<'${gel("enddate").value}'`);
+  if ($("#startdate").value !== "")
+    ands.push(`date>'${$("#startdate").value}'`);
+  if ($("#enddate").value !== "") ands.push(`date<'${$("#enddate").value}'`);
   let select = "select * from bgm";
   let where = ands.length ? " where " + ands.join(" and ") : "";
-  let order = ` order by ${gel("sortby").value} ${gel("scending").value}`;
+  let order = ` order by ${$("#sortby").value} ${$("#scending").value}`;
   let sql = select + where + order;
   log(sql);
   stmt = db.prepare(sql);
@@ -241,8 +253,8 @@ function loadNext() {
     loadbgms();
 }
 async function loadbgms() {
-  let tpl = gel("bgms").content;
-  let currctype = [...gel("ctype").selectedOptions].map(el => Number(el.value));
+  let tpl = $("#bgms").content;
+  let currctype = [...$("#ctype").selectedOptions].map(el => Number(el.value));
   for (let _ of Array(25)) {
     if (stmt.finalized || !stmt.step())
       return (stmt.finalized = !stmt.finalize());
@@ -303,7 +315,7 @@ async function initBar() {
       nsfw.checked = true;
     } else nsfw.checked = false;
   };
-  gel("searchbtn").onclick = search;
+  $("#searchbtn").onclick = search;
 }
 async function initDB() {
   if (!window.sqlite3) window.sqlite3 = await sqlite3InitModule();
@@ -360,11 +372,11 @@ async function initTags(first) {
   infotags = await (await fetch(`${stype}/infokeys.json`)).json();
   infokeys = infotags.map(([key, count]) => key);
   nsfwtags = await (await fetch(`${stype}/nsfwtags.json`)).json();
-  let tagpanel = gel("tagpanel");
-  gel("showtags").onclick = () => togglePnl(tagpanel);
+  let tagpanel = $("#tagpanel");
+  $("#showtags").onclick = () => togglePnl(tagpanel);
   if (first)
     document.addEventListener("keydown", e => {
-      if (e.key === "Escape") tagpanel.classList.remove("show");
+      if (e.key === "Escape") tagpanel.hide();
       if (e.key === "q" && e.ctrlKey) togglePnl(tagpanel);
     });
   function initbox(btn, box, tags, curr) {
@@ -372,13 +384,11 @@ async function initTags(first) {
     let per = 200;
     if (curr) per = 999;
     btn.onclick = () => {
-      tagpanel
-        .querySelectorAll(".tagbox")
-        .forEach(el => el.classList.remove("show"));
+      tagpanel.querySelectorAll(".tagbox").forEach(el => el.hide());
       tagpanel
         .querySelectorAll(".radio")
         .forEach(el => el.classList.remove("chosed"));
-      box.classList.add("show");
+      box.show();
       btn.classList.add("chosed");
       if (curr) {
         let counter = new Map();
@@ -420,9 +430,9 @@ async function initTags(first) {
     box.replaceChildren();
     loadtags();
   }
-  initbox(gel("showall"), gel("alltagbox"), tags);
-  initbox(gel("shownsfw"), gel("nsfwtagbox"), nsfwtags);
-  initbox(gel("showcurr"), gel("currtagbox"), [], 1);
+  initbox($("#showall"), $("#alltagbox"), tags);
+  initbox($("#shownsfw"), $("#nsfwtagbox"), nsfwtags);
+  initbox($("#showcurr"), $("#currtagbox"), [], 1);
   tagpanel.onclick = e => {
     let span = e.target.closest("span");
     if (span) {
@@ -439,10 +449,10 @@ async function initTags(first) {
     }
   };
   tagpanel.onwheel = e => e.preventDefault();
-  gel("showall").click();
+  $("#showall").click();
 }
 async function initPrompt() {
-  let ul = gel("prompts");
+  let ul = $("#prompts");
   let liCount = 20;
   let lis = Array(liCount)
     .fill()
@@ -459,8 +469,8 @@ async function initPrompt() {
     } else not = "";
     prev = text.slice(0, lastSpace + 1);
     let prevTags = prev.split(" ");
-    if (!lastWord) return ul.classList.remove("show");
-    ul.classList.add("show");
+    if (!lastWord) return ul.hide();
+    ul.show();
     let chars = lastWord.split("");
     let filtered = [];
     function filterTag(tags, gray) {
@@ -488,7 +498,7 @@ async function initPrompt() {
     filterTag(infotags, 1);
     if (nsfw.checked) filterTag(nsfwtags);
     else filterTag(tags);
-    if (!filtered.length) return ul.classList.remove("show");
+    if (!filtered.length) return ul.hide();
     let liIndex = 0;
     filtered.some(({ tag, indexes, count, gray }) => {
       if (liIndex >= liCount) return 1;
@@ -511,14 +521,14 @@ async function initPrompt() {
       word.replaceChildren(...chars);
       word.normalize();
       li.replaceChildren(word, count);
-      li.classList.remove("hide");
+      li.show();
       li.tag = tag;
       if (gray) li.classList.add("gray");
       else li.classList.remove("gray");
       ++liIndex;
     });
     lastLi = lis[liIndex - 1];
-    lis.slice(liIndex).forEach(li => li.classList.add("hide"));
+    lis.slice(liIndex).forEach(li => li.hide());
     updateFocus(ul.firstChild);
   }
   let prev;
@@ -599,14 +609,14 @@ async function initPrompt() {
       select();
     }
   };
-  searchbar.onblur = () => ul.classList.remove("show");
+  searchbar.onblur = () => ul.hide();
 }
 async function initCover() {
   let timer;
-  let coverwrap = gel("coverwrap");
-  let cover = gel("cover");
-  let infobox = gel("infobox");
-  let summary = gel("summary");
+  let coverwrap = $("#coverwrap");
+  let cover = $("#cover");
+  let infobox = $("#infobox");
+  let summary = $("#summary");
   cover.onwheel = e => e.preventDefault();
   infobox.onwheel = pvtscroll;
   summary.onwheel = pvtscroll;
@@ -644,7 +654,7 @@ async function initCover() {
                 `<b>${k}</b>：${v instanceof Array ? v.join("，") : v}`
             )
             .join("<br>");
-          coverwrap.classList.remove("hide");
+          coverwrap.show();
         }, 500);
       }
     }
@@ -655,29 +665,29 @@ async function initCover() {
       e.relatedTarget &&
       !e.relatedTarget?.closest("#cover,.thumb,#summary,#infobox")
     )
-      coverwrap.classList.add("hide");
+      coverwrap.hide();
   });
   coverwrap.onclick = e => {
-    if (e.target === cover) coverwrap.classList.add("hide");
+    if (e.target === cover) coverwrap.hide();
   };
 }
 async function initSetting() {
-  gel("showsetting").onclick = () => togglePnl(gel("settings"));
-  gel("username").value = localStorage.getItem("username");
-  gel("token").value = localStorage.getItem("token");
-  gel("saveun").onclick = () =>
-    localStorage.setItem("username", gel("username").value);
-  gel("savetoken").onclick = () =>
-    localStorage.setItem("token", gel("token").value);
+  $("#showsetting").onclick = () => togglePnl($("#settings"));
+  $("#username").value = localStorage.getItem("username");
+  $("#token").value = localStorage.getItem("token");
+  $("#saveun").onclick = () =>
+    localStorage.setItem("username", $("#username").value);
+  $("#savetoken").onclick = () =>
+    localStorage.setItem("token", $("#token").value);
   let status;
   ctypes = (await idb.getItem("types")) || new Map();
-  gel("fetchtype").onclick = async () => {
-    if (gel("username").value === "" || status === enums.fetching) return;
+  $("#fetchtype").onclick = async () => {
+    if ($("#username").value === "" || status === enums.fetching) return;
     status = enums.fetching;
     while (1) {
       let offset = ctypes.size;
       let r = await get(
-        `https://api.bgm.tv/v0/users/${gel("username").value}/collections`,
+        `https://api.bgm.tv/v0/users/${$("#username").value}/collections`,
         {
           subject_type: 2,
           limit: 100,
@@ -685,9 +695,9 @@ async function initSetting() {
         }
       );
       let j = await r.json();
-      gel("typepgs").max = j.total;
-      gel("typepgs").value = j.data.length + offset;
-      gel("typetext").innerText = `${j.data.length + offset}/${j.total}`;
+      $("#typepgs").max = j.total;
+      $("#typepgs").value = j.data.length + offset;
+      $("#typetext").innerText = `${j.data.length + offset}/${j.total}`;
       j.data.forEach(sbj => ctypes.set(sbj.subject_id, sbj.type));
       idb.setItem("types", ctypes);
       if (j.data.length < 100) return (status = enums.finish);
@@ -705,8 +715,10 @@ async function inits() {
   await initSetting();
   search();
 }
-gel("stype").onchange = async e => {
+$("#stype").onchange = async e => {
+  $(`select[name="${stype}"]`).hide();
   stype = e.target.value;
+  $(`select[name="${stype}"]`).show();
   await initDB();
   await initTags();
   search();

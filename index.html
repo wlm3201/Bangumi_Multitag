@@ -45,18 +45,26 @@
       <select id="stype">
         <option value="2">动画</option>
         <option value="4">游戏</option>
+        <option value="1">书籍</option>
       </select>
       <div id="searchbox">
         <input id="searchbar" type="text" />
-        <ul id="prompts"></ul>
+        <ul id="prompts" class="hide"></ul>
       </div>
       <div class="multiselect">
         <span>平台</span>
-        <select id="platform" multiple size="5">
+        <select id="platform" multiple size="5" name="2">
           <option value="TV" selected>TV</option>
           <option value="剧场版" selected>剧场版</option>
           <option value="OVA" selected>OVA</option>
           <option value="WEB" selected>WEB</option>
+          <option value="其他" selected>其他</option>
+        </select>
+        <select id="platform" multiple class="hide" name="4"></select>
+        <select id="platform" multiple size="4" class="hide" name="1">
+          <option value="漫画" selected>漫画</option>
+          <option value="小说" selected>小说</option>
+          <option value="画集" selected>画集</option>
           <option value="其他" selected>其他</option>
         </select>
       </div>
@@ -123,7 +131,7 @@
       <div id="summary"></div>
       <div id="infobox"></div>
     </div>
-    <div id="tagpanel" class="floatbox">
+    <div id="tagpanel" class="floatbox hide">
       <div class="buttons">
         <button id="showall" class="radio">全部</button>
         <button id="shownsfw" class="radio">NSFW</button>
@@ -133,7 +141,7 @@
       <div id="nsfwtagbox" class="tagbox"></div>
       <div id="currtagbox" class="tagbox"></div>
     </div>
-    <div id="settings" class="floatbox">
+    <div id="settings" class="floatbox hide">
       <div>
         <span>用户名：</span><input id="username" type="text" /><button
           id="saveun">

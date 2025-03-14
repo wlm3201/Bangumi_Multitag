@@ -67,10 +67,7 @@ body {
     padding: 10px;
     margin: 0;
     list-style: none;
-    display: none;
-    &.show {
-      display: inherit;
-    }
+    display: inherit;
     & li {
       cursor: pointer;
       border: var(--medium);
@@ -79,9 +76,6 @@ body {
       justify-content: space-between;
       &.gray {
         opacity: 0.5;
-      }
-      &.hide {
-        display: none;
       }
       &:hover {
         border-color: white;
@@ -244,9 +238,6 @@ body {
   /* 字体变糊 */
   /* top: 50%; */
   /* translate: 0 -50% 0; */
-  &.hide {
-    display: none;
-  }
   #cover {
     height: 100%;
   }
@@ -287,13 +278,10 @@ body {
   background: var(--transblack);
   backdrop-filter: blur(100px);
   padding: 20px;
-  display: none;
   flex-direction: column;
   gap: 10px;
   z-index: 2;
-  &.show {
-    display: flex;
-  }
+  display: flex;
 }
 #tagpanel {
   & .buttons {
@@ -303,14 +291,11 @@ body {
     }
   }
   .tagbox {
-    display: none;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     overflow-y: auto;
-    &.show {
-      display: flex;
-    }
+    display: flex;
     & > span {
       padding: 2px 5px;
       border: var(--thin);
@@ -329,6 +314,9 @@ body {
   & > div {
     display: flex;
   }
+}
+.hide {
+  display: none !important;
 }
 ::selection {
   color: black;
