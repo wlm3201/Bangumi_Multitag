@@ -620,42 +620,39 @@ async function initCover() {
   cover.onwheel = e => e.preventDefault();
   infobox.onwheel = pvtscroll;
   summary.onwheel = pvtscroll;
-  bgmbox.addEventListener("mouseover", e => {
+  bgmbox.addEventListener("contextmenu", e => {
     let t = e.target;
     if (t.matches(".thumb")) {
+      e.preventDefault();
       let sbj = t.closest(".bgm").sbj;
       let coversrc = t.src.replace("r/200/", "");
       if (!(e.relatedTarget === cover && cover.src === coversrc)) {
-        timer = setTimeout(() => {
-          clearTimeout(timer);
-          cover.src = coversrc;
-          coverwrap.style = "";
-          infobox.style = "";
-          let rect = t.getBoundingClientRect();
-          let left = rect.left;
-          let right = bgmbox.clientWidth - rect.right;
-          let w = (del.clientHeight * t.width) / t.height;
-          let l, r;
-          if (left > right) {
-            coverwrap.style.right = right + "px";
-            l = right + w;
-            r = right;
-          } else {
-            coverwrap.style.left = left + "px";
-            r = left + w;
-            l = left;
-          }
-          if (l > r) infobox.style.right = 100 + "%";
-          else infobox.style.left = 100 + "%";
-          summary.innerText = sbj.summary;
-          infobox.innerHTML = Object.entries(JSON.parse(sbj.infobox))
-            .map(
-              ([k, v]) =>
-                `<b>${k}</b>：${v instanceof Array ? v.join("，") : v}`
-            )
-            .join("<br>");
-          coverwrap.show();
-        }, 500);
+        cover.src = coversrc;
+        coverwrap.style = "";
+        infobox.style = "";
+        let rect = t.getBoundingClientRect();
+        let left = rect.left;
+        let right = bgmbox.clientWidth - rect.right;
+        let w = (del.clientHeight * t.width) / t.height;
+        let l, r;
+        if (left > right) {
+          coverwrap.style.right = right + "px";
+          l = right + w;
+          r = right;
+        } else {
+          coverwrap.style.left = left + "px";
+          r = left + w;
+          l = left;
+        }
+        if (l > r) infobox.style.right = 100 + "%";
+        else infobox.style.left = 100 + "%";
+        summary.innerText = sbj.summary;
+        infobox.innerHTML = Object.entries(JSON.parse(sbj.infobox))
+          .map(
+            ([k, v]) => `<b>${k}</b>：${v instanceof Array ? v.join("，") : v}`
+          )
+          .join("<br>");
+        coverwrap.show();
       }
     }
   });
